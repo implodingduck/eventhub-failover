@@ -1,0 +1,4 @@
+fastapi[All]
+azure-identity
+azure-eventhub
+aiohttp

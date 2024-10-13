@@ -1,0 +1,4 @@
+azure-eventhub
+aiohttp
+azure-eventhub-checkpointstoreblob-aio
+azure-identity
