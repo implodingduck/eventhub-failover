@@ -95,16 +95,24 @@ resource "azurerm_eventhub" "primary" {
   message_retention   = 1
 }
 
-resource "azurerm_eventhub_consumer_group" "activepassive" {
-  name                = "activepassive"
+resource "azurerm_eventhub_consumer_group" "alias" {
+  name                = "alias"
   eventhub_name       = azurerm_eventhub.primary.name
   namespace_name      = azurerm_eventhub_namespace.primary.name
   resource_group_name = azurerm_resource_group.rg.name
   
 }
 
-resource "azurerm_eventhub_consumer_group" "activeactive" {
-  name                = "activeactive"
+resource "azurerm_eventhub_consumer_group" "primary" {
+  name                = "primary"
+  eventhub_name       = azurerm_eventhub.primary.name
+  namespace_name      = azurerm_eventhub_namespace.primary.name
+  resource_group_name = azurerm_resource_group.rg.name
+  
+}
+
+resource "azurerm_eventhub_consumer_group" "secondary" {
+  name                = "secondary"
   eventhub_name       = azurerm_eventhub.primary.name
   namespace_name      = azurerm_eventhub_namespace.primary.name
   resource_group_name = azurerm_resource_group.rg.name
@@ -129,8 +137,26 @@ resource "azurerm_storage_account" "primary" {
   tags = local.tags
 }
 
-resource "azurerm_storage_container" "primary" {
-  name                  = "eventhubcheckpoint"
+resource "azurerm_storage_container" "primary-alias" {
+  name                  = "eventhubcheckpoint-alias"
+  storage_account_name  = azurerm_storage_account.primary.name
+  container_access_type = "private"
+}
+
+resource "azurerm_storage_container" "primary-primary" {
+  name                  = "eventhubcheckpoint-primary"
+  storage_account_name  = azurerm_storage_account.primary.name
+  container_access_type = "private"
+}
+
+resource "azurerm_storage_container" "primary-secondary" {
+  name                  = "eventhubcheckpoint-secondary"
+  storage_account_name  = azurerm_storage_account.primary.name
+  container_access_type = "private"
+}
+
+resource "azurerm_storage_container" "primary-replicator" {
+  name                  = "eventhubcheckpoint-replicator"
   storage_account_name  = azurerm_storage_account.primary.name
   container_access_type = "private"
 }

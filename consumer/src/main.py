@@ -12,16 +12,13 @@ BLOB_STORAGE_ACCOUNT_URL = os.environ.get("BLOB_STORAGE_ACCOUNT_URL")
 BLOB_CONTAINER_NAME = os.environ.get("BLOB_CONTAINER_NAME")
 EVENT_HUB_FULLY_QUALIFIED_NAMESPACE = os.environ.get("EVENT_HUB_FULLY_QUALIFIED_NAMESPACE")
 EVENT_HUB_NAME = os.environ.get("EVENT_HUB_NAME")
+EVENT_HUB_CONSUMER_GROUP = os.environ.get("EVENT_HUB_CONSUMER_GROUP", "$Default")
 
 credential = DefaultAzureCredential()
 
 async def on_event(partition_context, event):
     # Print the event data.
-    print(
-        'Received the event: "{}" from the partition with ID: "{}"'.format(
-            event.body_as_str(encoding="UTF-8"), partition_context.partition_id
-        )
-    )
+    print(f"Received the event: '{event.body_as_str(encoding="UTF-8")}' from the partition with ID: '{partition_context.partition_id}', with sequence_number {event.sequence_number}.")
 
     # Update the checkpoint so that the program doesn't read the events
     # that it has already read when you run it next time.
@@ -33,7 +30,7 @@ async def main():
     print("Creating a blob checkpoint store.")
     checkpoint_store = BlobCheckpointStore(
         blob_account_url=BLOB_STORAGE_ACCOUNT_URL,
-        container_name=BLOB_CONTAINER_NAME,
+        container_name=f"{BLOB_CONTAINER_NAME}-{EVENT_HUB_CONSUMER_GROUP}",
         credential=credential,
     )
 
@@ -42,7 +39,7 @@ async def main():
     client = EventHubConsumerClient(
         fully_qualified_namespace=EVENT_HUB_FULLY_QUALIFIED_NAMESPACE,
         eventhub_name=EVENT_HUB_NAME,
-        consumer_group="activepassive",
+        consumer_group=EVENT_HUB_CONSUMER_GROUP,
         checkpoint_store=checkpoint_store,
         credential=credential,
     )

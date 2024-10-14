@@ -2,6 +2,7 @@ import asyncio
 import datetime
 import logging
 import os
+import uuid
 
 from azure.eventhub import EventData
 from azure.eventhub.aio import EventHubProducerClient
@@ -52,10 +53,12 @@ async def produce():
 
         now = datetime.datetime.now()
         # Add events to the batch.
-        event_data_batch.add(EventData(f"{now}: First event "))
-        event_data_batch.add(EventData(f"{now}: Second event"))
-        event_data_batch.add(EventData(f"{now}: Third event"))
+        event_data_batch.add(EventData(f"{now}: {uuid.uuid4()}"))
+        event_data_batch.add(EventData(f"{now}: {uuid.uuid4()}"))
+        event_data_batch.add(EventData(f"{now}: {uuid.uuid4()}"))
 
         # Send the batch of events to the event hub.
         await producerclient.send_batch(event_data_batch)
+
+    
     return {"message": f"{now}: Events produced!"}
